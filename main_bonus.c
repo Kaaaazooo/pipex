@@ -6,11 +6,11 @@
 /*   By: sabrugie <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 14:26:42 by sabrugie          #+#    #+#             */
-/*   Updated: 2021/05/29 17:25:24 by sabrugie         ###   ########.fr       */
+/*   Updated: 2021/05/29 17:26:29 by sabrugie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "pipex_bonus.h"
 
 static void	free_strtab(char **tab)
 {
@@ -105,7 +105,7 @@ int	main(int ac, char **av, char **envp)
 	int		fd;
 	int		pd[2];
 
-	if (ac != 5)
+	if (ac < 5)
 		return (-1);
 	fd = open(av[1], O_RDONLY);
 	pipe(pd);
