@@ -6,7 +6,7 @@
 /*   By: sabrugie <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/15 16:52:38 by sabrugie          #+#    #+#             */
-/*   Updated: 2019/11/02 16:30:20 by sabrugie         ###   ########.fr       */
+/*   Updated: 2021/05/29 10:28:55 by sabrugie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ char				**ft_split(char const *s, char c)
 	size_t		i;
 	size_t		j;
 
-	if (!s)
+	if (s)
 		res = (char**)malloc(sizeof(char*) * (count(s, c) + 1));
 	if (!s || !res)
 		return (NULL);

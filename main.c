@@ -1,5 +1,19 @@
 #include "pipex.h"
 
+static void	free_strtab(char **tab)
+{
+	int	i;
+
+	i = 0;
+	while (tab[i])
+	{
+		free(tab[i]);
+		tab[i++] = NULL;
+	}
+	free(tab);
+	tab = NULL;
+}
+
 char	*get_path(char **envp)
 {
 	int	i;
@@ -20,37 +34,74 @@ char	*get_path(char **envp)
 	return (NULL);
 }
 
+void	getcmd(char *args, char **env)
+{
+	char		*tmp;
+	char		**paths;
+	char		**strs;
+	int			i;
+
+	paths = ft_split(get_path(env), ':');
+	strs = ft_split(args, ' ');
+	i = 0;
+	while (paths[i])
+	{
+		tmp = ft_strjoin(paths[i], "/");
+		free(paths[i]);
+		paths[i] = tmp;
+		tmp = ft_strjoin(paths[i], *strs);
+		execve(tmp, strs, env);
+		if (errno != ENOENT)
+			perror("pipex:");
+		free(tmp);
+		++i;
+	}
+	write(STDERR_FILENO, "pipex: command not found : ", ft_strlen("pipex: command not found : "));
+	dprintf(STDERR_FILENO, "%s\n", *strs);
+	free_strtab(paths);
+	free_strtab(strs);
+}
+
 int	main(int ac, char **av, char **envp)
 {
-	int	i;
-	char	**paths;
+	int		i;
+	int		fd;
+	int		pd[2];
+	int		pid;
 
-	i = 0;
-	paths = ft_split(get_path(envp), ':');
-	printf("paths :\n");
-	while (paths[i])
-		printf("%s\n", paths[i++]);
-	return (0);
-	i = 1;
+	if (ac < 4)
+		return (-1);
+	fd = open(av[1], O_RDONLY);
+	i = 2;
+	pipe(pd);
+	pid = fork();
+	if (!pid)
+	{
+		dup2(pd[1], 1);
+		dup2(fd, 0);
+		getcmd(av[i++], envp);
+	}
+	dup2(pd[0], 0);
+	close(pd[1]);
 	while (i < ac - 1)
 	{
-		int pd[2];
 		pipe(pd);
-
-		if (!fork()) {
-			dup2(pd[1], 1); // remap output back to parent
-			execlp(av[i], av[i], NULL);
-			perror("exec");
-			abort();
+		pid = fork();
+		if (!pid) {
+			dup2(pd[1], 1);
+			getcmd(av[i], envp);
+			exit(0);
 		}
-
-		// remap output from previous child to input
 		dup2(pd[0], 0);
 		close(pd[1]);
 		i++;
 	}
-	execlp(av[i], av[i], NULL);
-	perror("exec");
-	abort();
+	pid = fork();
+	if (!pid)
+	{
+		getcmd(av[i], envp);
+		exit(0);
+	}
+	close(fd);
 	return (0);
 }
