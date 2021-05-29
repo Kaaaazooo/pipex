@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sabrugie <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/05/29 14:26:42 by sabrugie          #+#    #+#             */
+/*   Updated: 2021/05/29 15:09:39 by sabrugie         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
 static void	free_strtab(char **tab)
@@ -16,8 +28,8 @@ static void	free_strtab(char **tab)
 
 char	*get_path(char **envp)
 {
-	int	i;
-	int	j;
+	int		i;
+	int		j;
 	char	find[5];
 
 	i = 0;
@@ -56,51 +68,62 @@ void	getcmd(char *args, char **env)
 		free(tmp);
 		++i;
 	}
-	write(STDERR_FILENO, "pipex: command not found : ", ft_strlen("pipex: command not found : "));
+	write(STDERR_FILENO, "pipex: command not found : ",
+		ft_strlen("pipex: command not found : "));
 	dprintf(STDERR_FILENO, "%s\n", *strs);
 	free_strtab(paths);
 	free_strtab(strs);
 }
 
-int	main(int ac, char **av, char **envp)
+int	pipe_loop(int pd[2], int ac, char **av, char **envp)
 {
-	int		i;
-	int		fd;
-	int		pd[2];
-	int		pid;
+	int	i;
+	int	pid;
+	int	fd;
 
-	if (ac < 4)
-		return (-1);
-	fd = open(av[1], O_RDONLY);
-	i = 2;
-	pipe(pd);
-	pid = fork();
-	if (!pid)
-	{
-		dup2(pd[1], 1);
-		dup2(fd, 0);
-		getcmd(av[i++], envp);
-	}
-	dup2(pd[0], 0);
-	close(pd[1]);
-	while (i < ac - 1)
+	i = 3;
+	while (i < ac - 2)
 	{
 		pipe(pd);
 		pid = fork();
-		if (!pid) {
+		if (!pid)
+		{
 			dup2(pd[1], 1);
 			getcmd(av[i], envp);
-			exit(0);
 		}
 		dup2(pd[0], 0);
 		close(pd[1]);
 		i++;
 	}
-	pid = fork();
-	if (!pid)
+	fd = open(av[ac - 1], O_RDWR | O_TRUNC | O_CREAT, 0644);
+	if (fd < 0)
+		perror("pipex");
+	return (fd);
+}
+
+int	main(int ac, char **av, char **envp)
+{
+	int		fd;
+	int		pd[2];
+
+	if (ac < 5)
+		return (-1);
+	fd = open(av[1], O_RDONLY);
+	pipe(pd);
+	if (!fork())
 	{
-		getcmd(av[i], envp);
-		exit(0);
+		dup2(pd[1], 1);
+		dup2(fd, 0);
+		getcmd(av[2], envp);
+	}
+	dup2(pd[0], 0);
+	close(pd[1]);
+	close(fd);
+	pipe_loop(pd, ac, av, envp);
+	if (!fork())
+	{
+		dup2(fd, 1);
+		getcmd(av[ac - 2], envp);
 	}
 	close(fd);
 	return (0);

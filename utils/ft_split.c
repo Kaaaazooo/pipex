@@ -6,7 +6,7 @@
 /*   By: sabrugie <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/15 16:52:38 by sabrugie          #+#    #+#             */
-/*   Updated: 2021/05/29 10:28:55 by sabrugie         ###   ########.fr       */
+/*   Updated: 2021/05/29 14:40:14 by sabrugie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,14 +38,14 @@ static char	**free_strs(char **strs, int j)
 	return (NULL);
 }
 
-char				**ft_split(char const *s, char c)
+char	**ft_split(char const *s, char c)
 {
 	char		**res;
 	size_t		i;
 	size_t		j;
 
 	if (s)
-		res = (char**)malloc(sizeof(char*) * (count(s, c) + 1));
+		res = (char **)ft_calloc(sizeof(char *), (count(s, c) + 1));
 	if (!s || !res)
 		return (NULL);
 	j = 0;
@@ -64,6 +64,5 @@ char				**ft_split(char const *s, char c)
 			s += i;
 		}
 	}
-	res[j] = NULL;
 	return (res);
 }

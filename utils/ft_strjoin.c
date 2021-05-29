@@ -6,7 +6,7 @@
 /*   By: sabrugie <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/08 17:42:46 by sabrugie          #+#    #+#             */
-/*   Updated: 2019/10/27 10:31:55 by sabrugie         ###   ########.fr       */
+/*   Updated: 2021/05/29 14:08:04 by sabrugie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		return (ft_strdup(s1));
 	len1 = ft_strlen(s1);
 	len2 = ft_strlen(s2);
-	str = (char*)malloc(sizeof(char) * (len1 + len2 + 1));
+	str = (char *)malloc(sizeof(char) * (len1 + len2 + 1));
 	if (!str)
 		return (0);
 	ft_memcpy(str, s1, len1);
