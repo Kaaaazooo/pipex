@@ -6,7 +6,7 @@
 /*   By: sabrugie <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 14:26:42 by sabrugie          #+#    #+#             */
-/*   Updated: 2021/06/06 15:55:37 by sabrugie         ###   ########.fr       */
+/*   Updated: 2021/06/06 17:22:09 by sabrugie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,11 @@ int	main(int ac, char **av, char **env)
 	int	pd[2];
 
 	if (ac != 5)
+	{
+		ft_putdstr(STDERR_FILENO,
+			"usage : ./pipex [input] [cmd1] [cmd2] [output]", 1);
 		return (-1);
+	}
 	fd = try_open(av[1], O_RDONLY, 0);
 	pipe(pd);
 	if (fd >= 0)

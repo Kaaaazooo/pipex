@@ -6,11 +6,27 @@
 /*   By: sabrugie <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/06 15:54:47 by sabrugie          #+#    #+#             */
-/*   Updated: 2021/06/06 15:56:43 by sabrugie         ###   ########.fr       */
+/*   Updated: 2021/06/06 17:40:30 by sabrugie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+
+void	pipex_error(char *error, char *arg)
+{
+	int		i;
+	char	buf[8096];
+
+	i = 0;
+	while (i < 8096)
+		buf[i++] = 0;
+	ft_strcpy(buf + ft_strlen(buf), "pipex: ");
+	ft_strcpy(buf + ft_strlen(buf), error);
+	ft_strcpy(buf + ft_strlen(buf), ": ");
+	ft_strcpy(buf + ft_strlen(buf), arg);
+	ft_strcpy(buf + ft_strlen(buf), "\n");
+	write(STDERR_FILENO, buf, ft_strlen(buf));
+}
 
 void	free_strtab(char **tab)
 {
@@ -46,7 +62,7 @@ int	try_open(char *filename, int oflag, mode_t mode)
 
 int	try_exec(char *file, char **cmd, char **env)
 {
-	int	fd;
+	int		fd;
 
 	fd = open(file, O_RDONLY);
 	if (fd >= 0 && !close(fd))
@@ -54,13 +70,7 @@ int	try_exec(char *file, char **cmd, char **env)
 		if (execve(file, cmd, env) < 0)
 		{
 			if (errno == ENOEXEC || errno == EACCES)
-			{
-				ft_putdstr(STDERR_FILENO, "pipex: ", 0);
-				ft_putdstr(STDERR_FILENO, strerror(errno), 0);
-				ft_putdstr(STDERR_FILENO, ": ", 0);
-				ft_putdstr(STDERR_FILENO, *cmd, 0);
-				write(2, "\n", 1);
-			}
+				pipex_error(strerror(errno), *cmd);
 			else
 				perror("pipex");
 			exit(errno);
@@ -71,8 +81,7 @@ int	try_exec(char *file, char **cmd, char **env)
 
 int	cmd_not_found(char *str, char ***paths, char ***strs)
 {
-	ft_putdstr(STDERR_FILENO, "pipex: command not found: ", 0);
-	ft_putdstr(STDERR_FILENO, str, 1);
+	pipex_error("command not found", str);
 	free_strtab(*paths);
 	free_strtab(*strs);
 	exit(127);
